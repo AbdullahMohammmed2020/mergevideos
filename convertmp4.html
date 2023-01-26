@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Video Editor</title>
+    <title>Mp4 to Mp3</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
@@ -38,41 +36,27 @@
     </nav>
     <div class="container">
       <br /><br />
-      <h1 class="text-center">Merge Videos</h1>
-      <br />
-      <form
-        action="/merge"
-        method="post"
-        enctype="multipart/form-data"
-        id="Merge"
-      >
+      <h1 class="text-center">Mp4 to Mp3 in Node.js</h1>
+      <br /><br />
+      <form action="/convert" method="POST" enctype="multipart/form-data">
         <div class="form-group">
-          <input
-            type="file"
-            name="files"
-            multiple
-            required
-            class="form-control"
-            id="Value"
-          />
+          <input type="file" class="form-control" name="file" required />
         </div>
         <div class="form-group">
-          <div class="d-grid gap-2">
-            <button class="btn btn-danger btn-block mt-4">Merge</button>
-          </div>
+          <button class="btn btn-block btn-danger">Convert to Mp3</button>
         </div>
       </form>
     </div>
-    <script
-      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
-      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+    crossorigin="anonymous"
+  ></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </html>

@@ -7,7 +7,10 @@ const {exec} = require('child_process');
 const fs = require('fs');
 
 const path = require('path');
+
 const { error } = require('console');
+
+const bodyParser = require('body-parser')
 
 var list = '';
 
@@ -28,25 +31,38 @@ const app = express();
 
 app.use(express.static('public'));
 
-var storage = multer.diskStorage({
-    destination: function (req, file, cb){
-        cb(null, 'public/uploads');
+var mergestorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public/uploads')
     },
-    filename: function (req, file, cb){
-        cb(null, file.filename + '-' + Date.now() + path.extname(file.originalname));
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
     }
-});
+})
 
-// var videoFilter = function(req, file, cb){
-//     //Accept Videos Only
-//     if(!file.originalname.match(/\.mp4$/)){
-//         req.fileValidationError = 'Only Videos Files Are Allowed! ';
-//         return cb(new Error('Only Videos Files Are Allowed! '), false);
-//     }
-//     cb(null, true);
-// }
+var convertstorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public/uploads')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+})
 
-var upload = multer({storage:storage});
+var videoFilter = function(req, file, cb){
+    //Accept Videos Only
+    if(!file.originalname.match(/\.mp4$/)){
+        req.fileValidationError = 'Only Videos Files Are Allowed! ';
+        return cb(new Error('Only Videos Files Are Allowed! '), false);
+    }
+    cb(null, true);
+}
+
+var mergeupload = multer({storage:mergestorage, fileFilter: videoFilter});
+var convertupload = multer({storage:convertstorage});
+
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(bodyParser.json())
 
 const PORT = process.env.PORT || 3000;
 
@@ -54,7 +70,11 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
 
-app.post('/merge',upload.array('files', 100),(req, res) => {
+app.get('/convert', (req, res) => {
+    res.sendFile(__dirname + "/convertmp4.html");
+});
+
+app.post('/merge',mergeupload.array('files', 100),(req, res) => {
     list = "";
 
     if(req.files){
@@ -93,6 +113,33 @@ app.post('/merge',upload.array('files', 100),(req, res) => {
         });
     }
 });
+
+app.post('/convert',convertupload.single('file'),(req,res,next) => {
+    if(req.file){
+        console.log(req.file.path)
+
+        var output = Date.now() + "output.mp3"
+
+        exec(`ffmpeg -i ${req.file.path} ${output}`, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`error: ${error.message}`);
+                return;
+            }
+            else{
+                console.log("file is converted")
+            res.download(output,(err) => {
+                if(err) throw err
+                
+                fs.unlinkSync(req.file.path)
+                fs.unlinkSync(output)
+
+                next()
+
+            })
+        }
+        })
+    }
+})
 
 app.listen(PORT, () => {
     console.log(`App Is LIstening To ${PORT}`);
