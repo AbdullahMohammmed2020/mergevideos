@@ -58,7 +58,7 @@ var videoFilter = function(req, file, cb){
     cb(null, true);
 }
 
-var mergeupload = multer({storage:mergestorage, fileFilter: videoFilter});
+var mergeupload = multer({storage:mergestorage});
 var convertupload = multer({storage:convertstorage});
 
 app.use(bodyParser.urlencoded({extended:false}))
