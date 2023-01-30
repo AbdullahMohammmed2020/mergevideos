@@ -2,7 +2,7 @@ const express = require('express');
 
 const multer = require('multer');
 
-const {exec} = require('child_process');
+const { exec } = require('child_process');
 
 const fs = require('fs');
 
@@ -21,7 +21,7 @@ var outputFilePath = Date.now() + 'output.mp4';
 var dir = 'public';
 var subDirectory = 'public/uploads';
 
-if(!fs.existsSync(dir)){
+if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
 
     fs.mkdirSync(subDirectory);
@@ -33,36 +33,44 @@ app.use(express.static('public'));
 
 var mergestorage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'public/uploads')
+        cb(null, 'public/uploads')
     },
     filename: function (req, file, cb) {
-      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
     }
 })
 
 var convertstorage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'public/uploads')
+        cb(null, 'public/uploads')
     },
     filename: function (req, file, cb) {
-      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
     }
 })
 
-var videoFilter = function(req, file, cb){
+var videoFilter = function (req, file, cb) {
     //Accept Videos Only
-    if(!file.originalname.match(/\.mp4$/)){
+    if (!file.originalname.match(/\.mp4$/)) {
         req.fileValidationError = 'Only Videos Files Are Allowed! ';
         return cb(new Error('Only Videos Files Are Allowed! '), false);
     }
     cb(null, true);
 }
 
-var mergeupload = multer({storage:mergestorage});
-var convertupload = multer({storage:convertstorage});
+var mergeupload = multer({ storage: mergestorage });
+var convertupload = multer({ storage: convertstorage });
 
-app.use(bodyParser.urlencoded({extended:false}))
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(function (req, res, next) {
+
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin")
+
+    res.setHeader("Cross-Origin-Embedder-Policy", "require-corp")
+
+    next()
+})
 
 const PORT = process.env.PORT || 3000;
 
@@ -74,11 +82,18 @@ app.get('/convert', (req, res) => {
     res.sendFile(__dirname + "/convertmp4.html");
 });
 
+app.get('/remove', (req, res) => {
+    res.sendFile(__dirname + "/remove.html");
+});
 
-app.post('/merge',mergeupload.array('files', 100),(req, res) => {
+app.get('/compress', (req, res) => {
+    res.sendFile(__dirname + "/compress.html");
+});
+
+app.post('/merge', mergeupload.array('files', 100), (req, res) => {
     list = "";
 
-    if(req.files){
+    if (req.files) {
         req.files.forEach((file) => {
             console.log(file.path);
 
@@ -92,31 +107,31 @@ app.post('/merge',mergeupload.array('files', 100),(req, res) => {
 
         writeSteam.end();
 
-        exec(`ffmpeg -safe 0 -f concat -i ${listFilePath} -c copy ${outputFilePath}`, 
-        (error, stdout, stderr) => {
-            if(error){
-                console.log(`error: ${error.message}`);
-                return;
-            }
-            else{
-                console.log('videos are successfully merged');
-                res.download(outputFilePath,(err) => {
-                    if(err) throw err
+        exec(`ffmpeg -safe 0 -f concat -i ${listFilePath} -c copy ${outputFilePath}`,
+            (error, stdout, stderr) => {
+                if (error) {
+                    console.log(`error: ${error.message}`);
+                    return;
+                }
+                else {
+                    console.log('videos are successfully merged');
+                    res.download(outputFilePath, (err) => {
+                        if (err) throw err
 
-                    req.files.forEach((file) => {
-                        fs.unlinkSync(file.path);
+                        req.files.forEach((file) => {
+                            fs.unlinkSync(file.path);
+                        });
+
+                        fs.unlinkSync(listFilePath);
+                        fs.unlinkSync(outputFilePath);
                     });
-
-                    fs.unlinkSync(listFilePath);
-                    fs.unlinkSync(outputFilePath);
-                });
-            }
-        });
+                }
+            });
     }
 });
 
-app.post('/convert',convertupload.single('file'),(req,res,next) => {
-    if(req.file){
+app.post('/convert', convertupload.single('file'), (req, res, next) => {
+    if (req.file) {
         console.log(req.file.path)
 
         var output = Date.now() + "output.mp3"
@@ -126,18 +141,18 @@ app.post('/convert',convertupload.single('file'),(req,res,next) => {
                 console.log(`error: ${error.message}`);
                 return;
             }
-            else{
+            else {
                 console.log("file is converted")
-            res.download(output,(err) => {
-                if(err) throw err
-                
-                fs.unlinkSync(req.file.path)
-                fs.unlinkSync(output)
+                res.download(output, (err) => {
+                    if (err) throw err
 
-                next()
+                    fs.unlinkSync(req.file.path)
+                    fs.unlinkSync(output)
 
-            })
-        }
+                    next()
+
+                })
+            }
         })
     }
 })
