@@ -18,6 +18,8 @@ var listFilePath = 'public/uploads/' + Date.now() + 'list.txt';
 
 var outputFilePath = Date.now() + 'output.mp4';
 
+const videoshow = require('videoshow')
+
 var dir = 'public';
 var subDirectory = 'public/uploads';
 
@@ -25,6 +27,10 @@ if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
 
     fs.mkdirSync(subDirectory);
+}
+
+function uninstallout() {
+    fs.unlinkSync(`${__dirname}/video.mp4`)
 }
 
 const app = express();
@@ -49,6 +55,15 @@ var convertstorage = multer.diskStorage({
     }
 })
 
+var videoshowstorage = multer.diskStorage({
+      destination: function(req, file, callback) {
+        callback(null, 'public/uploads');
+      },
+      filename: function(req, file, callback) {
+          callback(null, file.fieldname + '-' + Date.now() + file.originalname);
+      }
+});
+
 var videoFilter = function (req, file, cb) {
     //Accept Videos Only
     if (!file.originalname.match(/\.mp4$/)) {
@@ -60,6 +75,7 @@ var videoFilter = function (req, file, cb) {
 
 var mergeupload = multer({ storage: mergestorage });
 var convertupload = multer({ storage: convertstorage });
+var videoshowupload = multer({ storage: videoshowstorage });
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -89,6 +105,10 @@ app.get('/remove', (req, res) => {
 app.get('/compress', (req, res) => {
     res.sendFile(__dirname + "/compress.html");
 });
+
+app.get('/videoshow', (req, res) => {
+    res.sendFile(__dirname + '/videoshow.html')
+})
 
 app.post('/merge', mergeupload.array('files', 100), (req, res) => {
     list = "";
@@ -155,6 +175,60 @@ app.post('/convert', convertupload.single('file'), (req, res, next) => {
             }
         })
     }
+})
+
+app.post('/videoshow',videoshowupload.fields([{
+  name: 'images', maxCount: 100
+}, {
+  name: 'audio', maxCount: 1
+}]) ,(req, res) => {
+
+    images = []
+    var seconds = req.body.text
+    const audioFile = req.files.audio[0];
+
+    req.files.images.forEach(file => {
+        images.push(`${__dirname}/${subDirectory}/${file.filename}`)
+    })
+
+    num = parseInt(seconds)
+
+    console.log(num)
+
+    var videoOptions = {
+      fps: 25,
+      loop: num, // seconds
+      transition: true,
+      transitionDuration: 1, // seconds
+      videoBitrate: 1024,
+      videoCodec: 'libx264',
+      size: '640x?',
+      audioBitrate: '128k',
+      audioChannels: 2,
+      format: 'mp4',
+      pixelFormat: 'yuv420p'
+    }
+
+    videoshow(images, videoOptions)
+      .audio(`${__dirname}/${subDirectory}/${audioFile.filename}`)
+      .save('video.mp4')
+      .on('start', function (command) {
+        console.log('ffmpeg process started:', command)
+      })
+      .on('error', function (err, stdout, stderr) {
+        console.error('Error:', err)
+        console.error('ffmpeg stderr:', stderr)
+      })
+      .on('end', function (output) {
+        console.error('Video created in:', output)
+        res.download(`${__dirname}/video.mp4`)
+        req.files.images.forEach(file => {
+            fs.unlinkSync(file.path)
+        })
+        fs.unlinkSync(audioFile.path)
+        setTimeout(uninstallout, 30000)
+      })
+
 })
 
 app.listen(PORT, () => {
