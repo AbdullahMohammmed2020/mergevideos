@@ -1,7 +1,7 @@
 {
   "name": "lasttest",
   "version": "1.0.0",
-  "description": "",
+  "description": "\"# mergevideos\"",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js"
@@ -12,17 +12,28 @@
   "dependencies": {
     "@ffmpeg/core": "^0.11.0",
     "@ffmpeg/ffmpeg": "^0.11.6",
+    "audioconcat": "^0.1.4",
     "document": "^0.0.0",
     "express": "^4.18.2",
     "ffmpeg": "^0.0.4",
     "fluent-ffmpeg": "^2.1.2",
+    "image-size": "^1.0.2",
     "jquery": "^3.6.3",
     "jsdom": "^21.1.0",
     "multer": "^1.4.5-lts.1",
     "path": "^0.12.7",
+    "sharp": "^0.31.3",
     "videoshow": "^0.1.12"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbdullahMohammmed2020/mergevideos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AbdullahMohammmed2020/mergevideos/issues"
+  },
+  "homepage": "https://github.com/AbdullahMohammmed2020/mergevideos#readme"
 }
