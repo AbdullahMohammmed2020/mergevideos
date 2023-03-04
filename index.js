@@ -247,7 +247,7 @@ app.post('/videoshow', videoshowupload.fields([{ name: 'images', maxCount: 100 }
                 resize(image.path, FacebookVideo[0], FacebookVideo[1], `public/ed_images/${image.originalname}`)
             }
         }
-        ed_images.push(`${__dirname}/public/ed_images/${image.originalname}`)
+        ed_images.push(`${__dirname}/public/uploads/ed_images/${image.originalname}`)
     })
 
     //Create The VideoShow
