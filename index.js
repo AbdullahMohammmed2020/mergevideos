@@ -241,13 +241,13 @@ app.post('/videoshow', videoshowupload.fields([{ name: 'images', maxCount: 100 }
 
         if (to == 'Facebook Video') {
             if (imgDIM[0] >= FacebookVideo[0] && imgDIM[1] >= FacebookVideo[1]) {
-                crop(image.path, FacebookVideo[0], FacebookVideo[1], ((imgDIM[1] - FacebookVideo[1]) / 2), ((imgDIM[0] - FacebookVideo[0]) / 2), `/public/uploads/ed_images/${image.originalname}`)
+                crop(image.path, FacebookVideo[0], FacebookVideo[1], ((imgDIM[1] - FacebookVideo[1]) / 2), ((imgDIM[0] - FacebookVideo[0]) / 2), `public/ed_images/${file.filename}`)
             }
             else if (imgDIM[0] <= FacebookVideo[0] && imgDIM[1] <= FacebookVideo[1]) {
-                resize(image.path, FacebookVideo[0], FacebookVideo[1], `/public/uploads/ed_images/${image.originalname}`)
+                resize(image.path, FacebookVideo[0], FacebookVideo[1], `public/ed_images/${file.filename}`)
             }
         }
-        ed_images.push(`./public/uploads/ed_images/${image.originalname}`)
+        ed_images.push(`${__dirname}/public/ed_images/${file.filename}`)
     })
 
     //Create The VideoShow
@@ -417,7 +417,7 @@ app.post('/mergeaudios', mergeaudios_upload.array('audios', 100), (req, res) => 
     var songs = []
     req.files.forEach((file) => {
         // console.log(file.path);
-        songs.push(`${__dirname}/public/uploads/${file.filename}`)
+        songs.push(`${__dirname} / public / uploads / ${file.filename}`)
     });
     console.log(songs)
 
@@ -450,7 +450,7 @@ app.post('/inc_dec', incDecVideo_upload.single('video'), (req, res) => {
     var file = req.file.path
     var pts = parseFloat(req.body.pts)
     const audio_s = (1 / pts)
-    exec(`ffmpeg -i ${req.file.path} -filter_complex "[0:v]setpts=${pts}*PTS[v];[0:a]atempo=${audio_s}[a]" -map "[v]" -map "[a]" ${outpath}`, (e, stdout, stderr) => {
+    exec(`ffmpeg - i ${req.file.path} - filter_complex "[0:v]setpts=${pts}*PTS[v];[0:a]atempo=${audio_s}[a]" - map "[v]" - map "[a]" ${outpath}`, (e, stdout, stderr) => {
         if (e instanceof Error) {
             console.error(e);
             throw e;
