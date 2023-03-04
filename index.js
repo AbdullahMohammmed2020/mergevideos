@@ -241,10 +241,10 @@ app.post('/videoshow', videoshowupload.fields([{ name: 'images', maxCount: 100 }
 
         if (to == 'Facebook Video') {
             if (imgDIM[0] >= FacebookVideo[0] && imgDIM[1] >= FacebookVideo[1]) {
-                crop(image.path, FacebookVideo[0], FacebookVideo[1], ((imgDIM[1] - FacebookVideo[1]) / 2), ((imgDIM[0] - FacebookVideo[0]) / 2), `public/ed_images/${image.originalname}`)
+                crop(image.path, FacebookVideo[0], FacebookVideo[1], ((imgDIM[1] - FacebookVideo[1]) / 2), ((imgDIM[0] - FacebookVideo[0]) / 2), `/public/uploads/ed_images/${image.originalname}`)
             }
             else if (imgDIM[0] <= FacebookVideo[0] && imgDIM[1] <= FacebookVideo[1]) {
-                resize(image.path, FacebookVideo[0], FacebookVideo[1], `public/ed_images/${image.originalname}`)
+                resize(image.path, FacebookVideo[0], FacebookVideo[1], `/public/uploads/ed_images/${image.originalname}`)
             }
         }
         ed_images.push(`${__dirname}/public/uploads/ed_images/${image.originalname}`)
